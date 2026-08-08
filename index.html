@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>FIRENETX | GENERADOR OFICIAL</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .box { background: #111; padding: 20px; border-radius: 10px; width: 100%; max-width: 450px; border: 1px solid #333; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #c00; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        #res { margin-top: 20px; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>GENERADOR DE LISTA</h2>
+    <input type="text" id="panel" value="http://dns.digitaltvmx.site:8080" placeholder="URL Panel Real">
+    <input type="text" id="user" value="ibopro4588" placeholder="Usuario">
+    <input type="password" id="pass" value="7ed45ae2" placeholder="Password">
+    
+    <button onclick="generar()">GENERAR LISTA MODIFICADA</button>
+    
+    <div id="res">
+        <p style="color: #0f0;">¡Lista procesada con éxito!</p>
+        <button onclick="descargar()" style="background:#28a745; margin-top:10px;">DESCARGAR ARCHIVO .M3U</button>
+    </div>
+</div>
+
+<script>
+    let listaFinal = "";
+    const NUEVO_SERVIDOR = "https://firenetx.cremadelarosa9.workers.dev";
+
+    async function generar() {
+        const p = document.getElementById('panel').value.replace(/\/$/, "");
+        const u = document.getElementById('user').value;
+        const pas = document.getElementById('pass').value;
+        
+        // 1. Descargamos la lista cruda
+        const url = `${p}/get.php?username=${u}&password=${pas}&type=m3u_plus`;
+        
+        try {
+            // Usamos un proxy de descarga para evitar bloqueos del navegador
+            const resp = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+            let texto = await resp.text();
+            
+            // 2. Modificación masiva: Cambiamos el panel viejo por tu Servdit
+            listaFinal = texto.replaceAll(p, NUEVO_SERVIDOR);
+            
+            document.getElementById('res').style.display = "block";
+            alert("Proceso terminado. Ya puedes descargar tu lista.");
+        } catch(e) {
+            alert("Error al conectar: Asegúrate de tener conexión.");
+        }
+    }
+
+    function descargar() {
+        const blob = new Blob([listaFinal], {type: "text/plain"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "lista_firenetx.m3u";
+        a.click();
+    }
+</script>
+</body>
+</html>
